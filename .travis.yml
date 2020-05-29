@@ -1,0 +1,37 @@
+language: node_js
+node_js:
+  - "10"
+deploy_service_job: &DEPLOY_SERVICE_JOB
+  cache:
+    directories:
+      - node_modules
+install:
+    - npm install -g serverless
+    - travis_retry npm install
+script:
+    - serverless deploy -v -s ${STAGE_NAME}
+environments:
+    - &PRODUCTION_ENV
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID_PROD}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY_PROD}
+    - &DEVELOPMENT_ENV
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID_DEV}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY_DEV}
+jobs:
+  include:
+    # develop branch deploys to the 'dev' stage
+    - <<: *DEPLOY_SERVICE_JOB
+      name: "DEV: Deploy API to AWS"
+      if: type = push AND branch = dev
+      env:
+        - SERVICE_PATH="serverless-api"
+        - STAGE_NAME=dev
+        - *DEVELOPMENT_ENV
+    # master branch deploys to the 'prod' stage
+    - <<: *DEPLOY_SERVICE_JOB
+      name: "Deploy Test Users API"
+      if: type = push AND branch = master
+      env:
+        - SERVICE_PATH="serverless-api"
+        - STAGE_NAME=prod
+        - *PRODUCTION_ENV
