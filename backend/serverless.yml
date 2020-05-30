@@ -14,15 +14,14 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'eu-central-1'}
 
-environment:
-  TODOS_TABLE: ToDos-${self:provider.stage}
-  IMAGES_TABLE: Images-${self:provider.stage}
-  TODOS_INDEX_NAME: TodosIdIndex-${self:provider.stage}
-  IMAGES_S3_BUCKET: cdnd-04-serverless-todoapp-${self:provider.stage}
-  SIGNED_URL_EXPIRATION: 300
+  environment:
+    TODOS_TABLE: ToDos-${self:provider.stage}
+    IMAGES_TABLE: Images-${self:provider.stage}
+    TODOS_INDEX_NAME: TodosIdIndex-${self:provider.stage}
+    IMAGES_S3_BUCKET: cdnd-04-serverless-todoapp-${self:provider.stage}
+    SIGNED_URL_EXPIRATION: 300
 
 iamRoleStatements:
-
     - Effect: Allow
       Action:
         - dynamodb:Scan
