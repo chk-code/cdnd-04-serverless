@@ -175,8 +175,6 @@ resources:
             AttributeType: S
           - AttributeName: timestamp
             AttributeType: S
-          - AttributeName: imageId
-            AttributeType: S
         KeySchema:
           - AttributeName: todoId
             KeyType: HASH
