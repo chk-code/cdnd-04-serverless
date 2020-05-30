@@ -91,11 +91,13 @@ async function todoExists(todoId: string) {
 }
 async function createImage(todoId: string, imageId: string, event: any) {
   const timestamp = new Date().toISOString()
+  const newImage = JSON.parse(event.body)
 
   const newItem = {
     todoId,
     timestamp,
     imageId,
+    ...newImage,
     imageUrl: `https://${bucketName}.s3.amazonaws.com/${imageId}`
   }
   logger.info('Storing new item: ', newItem)
