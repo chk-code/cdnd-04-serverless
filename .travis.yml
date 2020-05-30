@@ -5,11 +5,17 @@ deploy_service_job: &DEPLOY_SERVICE_JOB
   cache:
     directories:
       - node_modules
+      - ${SERVICE_PATH}/node_modules
 install:
     - npm install -g serverless
     - travis_retry npm install
+    - cd ${SERVICE_PATH}
+    - travis_retry npm install
+    - cd -
 script:
-    - serverless deploy -v -s ${STAGE_NAME}
+    - cd ${SERVICE_PATH}
+    - serverless deploy -v --stage ${STAGE_NAME} --region ${AWS_REGION}
+    - cd -
 environments:
     - &PRODUCTION_ENV
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID_PROD}
@@ -24,14 +30,16 @@ jobs:
       name: "DEV: Deploy API to AWS"
       if: type = push AND branch = dev
       env:
-        - SERVICE_PATH="serverless-api"
+        - SERVICE_PATH="backend"
         - STAGE_NAME=dev
+        - AWS_REGION=eu-central-1
         - *DEVELOPMENT_ENV
     # master branch deploys to the 'prod' stage
     - <<: *DEPLOY_SERVICE_JOB
-      name: "Deploy Test Users API"
+      name: "PROD: Deploy API to AWS"
       if: type = push AND branch = master
       env:
-        - SERVICE_PATH="serverless-api"
+        - SERVICE_PATH="backend"
         - STAGE_NAME=prod
+        - AWS_REGION=eu-central-1
         - *PRODUCTION_ENV

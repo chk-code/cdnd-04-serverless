@@ -6,7 +6,19 @@ To implement this project, you need to implement a simple TODO application using
 
 This application will allow creating/removing/updating/fetching TODO items. Each TODO item can optionally have an attachment image. Each user only has access to TODO items that he/she has created.
 
-# TODO items
+# Key Learnings
+
+## Setup Travis CI/CD for AWS and Serverless
+
+Helpful link to setup a nice .travis.yml https://medium.com/swlh/setup-ci-cd-pipeline-for-aws-lambda-using-github-travis-ci-9812c8ef7199
+
+## AUTH0
+
+Config for Auth0: CLient Name CDND04-serverless and Domain: hydronet.eu.auth0.com. CLientID and Secret will be stored in AWS
+
+
+
+# The TODO items
 
 The application should store TODO items, and each TODO item contains the following fields:
 

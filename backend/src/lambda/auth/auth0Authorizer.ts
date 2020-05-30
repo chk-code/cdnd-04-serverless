@@ -57,10 +57,11 @@ export const handler = async (
 async function verifyToken(authHeader: string): Promise<JwtPayload> {
   const token = getToken(authHeader)
   const jwt: Jwt = decode(token, { complete: true }) as Jwt
-  if (jwt.header.alg !== 'RS256')
+  if (jwt.header.alg !== 'RS256'){
     // we are only supporting RS256 so fail if this happens.
     throw new Error('Invalid authentication algorithm header')
-
+    logger.error("Invalid authentication algorithm header")
+  }
   // DONE: Implement token verification
   // You should implement it similarly to how it was implemented for the exercise for the lesson 5
   // You can read more about how to do this here: https://auth0.com/blog/navigating-rs256-and-jwks/
@@ -70,14 +71,19 @@ async function verifyToken(authHeader: string): Promise<JwtPayload> {
 }
 
 function getToken(authHeader: string): string {
-  if (!authHeader) throw new Error('No authentication header')
-
-  if (!authHeader.toLowerCase().startsWith('bearer '))
+  if (!authHeader) {
+    throw new Error('No authentication header')
+    logger.error('No authentication header')
+  }
+    
+  if (!authHeader.toLowerCase().startsWith('bearer ')){
     throw new Error('Invalid authentication header')
-
+    logger.error('Invalid authentication header')
+  }
+    
   const split = authHeader.split(' ')
   const token = split[1]
-
+  logger.info("Token retrieved", token)
   return token
 }
 

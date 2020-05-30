@@ -3,61 +3,203 @@ service:
 
 plugins:
   - serverless-webpack
+  - serverless-aws-documentation
   - serverless-iam-roles-per-function
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  # runtime: nodejs8.10
+  runtime: nodejs10.15
 
   stage: ${opt:stage, 'dev'}
-  region: ${opt:region, 'us-east-1'}
+  region: ${opt:region, 'eu-central-1'}
+
+environment:
+  TODOS_TABLE: ToDos-${self:provider.stage}
+  IMAGES_TABLE: Images-${self:provider.stage}
+  TODOS_INDEX_NAME: TodosIdIndex-${self:provider.stage}
+  IMAGES_S3_BUCKET: cdnd-04-serverless-todoapp-${self:provider.stage}
+  SIGNED_URL_EXPIRATION: 300
+
+iamRoleStatements:
+
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:DeleteItem
+        - dynamodb:UpdateItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:Query
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.IMAGES_TABLE}
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.IMAGES_TABLE}/index/${self:provider.environment.TODOS_INDEX_NAME}
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+      Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
+
+custom:
+  documentation:
+  api:
+    info:
+      version: v0.1.0
+      title: CDND-04-Serverless TODO App
+      description: Serverless ToDo App for CDND04. (c) Christian Kulik
 
 functions:
 
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
-  # TODO: Configure this function
+  # DONE: Configure this function
   GetTodos:
     handler: src/lambda/http/getTodos.handler
     events:
       - http:
           method: get
           path: todos
+          cors: true
 
-  # TODO: Configure this function
-  GetTodos:
+  # DONE: Configure this function
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
       - http:
           method: post
           path: todos
+          cors: true
+          authorizer: Auth
+          documentation:
+            summary: Create a new Todo
+            description: Create a new Todo
 
-  # TODO: Configure this function
+  # DONE: Configure this function
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
     events:
       - http:
           method: patch
           path: todos/{todoId}
+          cors: true
+          authorizer: Auth
+          documentation:
+            summary: Update a Todo
+            description: Update a Todo
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
-  # TODO: Configure this function
+  # DONE: Configure this function
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     events:
       - http:
           method: delete
           path: todos/{todoId}
+          cors: true
+          authorizer: Auth
+          documentation:
+            summary: Delete a Todo
+            description: Delete a Todo
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
-  # TODO: Configure this function
+  # DONE: Configure this function
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
       - http:
           method: post
           path: todos/{todoId}/attachment
+          authorizer: Auth
+          cors: true
+          documentation:
+            summary: Create a new image
+            description: Create a new image
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.IMAGES_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
 resources:
   Resources:
-    # TODO: Add any necessary AWS resources
+    # DONE: Add any necessary AWS resources
+    TodosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: partitionKey
+            AttributeType: S
+          - AttributeName: sortKey
+            AttributeType: S
+          - AttributeName: indexKey
+            AttributeType: S
+        KeySchema:
+          - AttributeName: partitionKey
+            KeyType: HASH
+          - AttributeName: sortKey
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.TODOS_TABLE}
+        LocalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.TODOS_INDEX_NAME}
+            KeySchema:
+              - AttributeName: partitionKey
+                KeyType: HASH
+              - AttributeName: indexKey
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL # What attributes will be copied to an index
+    ImagesDynamoDBTable:
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: todosId
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: S
+          - AttributeName: imageId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: todosId
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.IMAGES_TABLE}
+    AttachmentsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.IMAGES_S3_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
