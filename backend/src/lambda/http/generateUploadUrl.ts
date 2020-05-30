@@ -46,9 +46,23 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     }
   }
   const imageId = uuid.v4()
-  const newItem = await createImage(todoId, imageId, event)
+  const imageURL = await createImage(todoId, imageId, event)
 
-  const url = getUploadUrl(imageId)
+  const signedURL = getUploadUrl(imageId)
+  logger.info("Updating Todos Item")
+  const updateItem = {
+    TableName: this.todosTable,
+    Key: {
+        todoId: todoId
+    },
+    UpdateExpression: "set attachmentUrl = :r",
+    ExpressionAttributeValues: {
+        ":r": imageURL
+    },
+    ReturnValues: "UPDATED_NEW"
+  }
+  await this.docClient.update(updateItem).promise()
+  logger.info("Update complete. Presigned URL generated successfully ", signedURL)
   // DONE: Return a presigned URL to upload a file for a TODO item with the provided id
   return {
     statusCode: 201,
@@ -56,8 +70,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       'Access-Control-Allow-Origin': '*'
     },
     body: JSON.stringify({
-      newItem: newItem,
-      uploadUrl: url
+      signedURL: signedURL,
+      imageUrl: imageURL
     })
   }
 }
@@ -77,13 +91,11 @@ async function todoExists(todoId: string) {
 }
 async function createImage(todoId: string, imageId: string, event: any) {
   const timestamp = new Date().toISOString()
-  const newImage = JSON.parse(event.body)
 
   const newItem = {
     todoId,
     timestamp,
     imageId,
-    ...newImage,
     imageUrl: `https://${bucketName}.s3.amazonaws.com/${imageId}`
   }
   logger.info('Storing new item: ', newItem)
@@ -94,7 +106,7 @@ async function createImage(todoId: string, imageId: string, event: any) {
     })
     .promise()
 
-  return newItem
+  return newItem.imageUrl
 }
 function getUploadUrl(imageId: string) {
   return s3.getSignedUrl('putObject', {

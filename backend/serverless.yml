@@ -167,18 +167,18 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL # What attributes will be copied to an index
-    ImagesDynamoDBTable:
+    AttachImgsTable:
       Type: "AWS::DynamoDB::Table"
       Properties:
         AttributeDefinitions:
-          - AttributeName: todosId
+          - AttributeName: todoId
             AttributeType: S
           - AttributeName: timestamp
             AttributeType: S
           - AttributeName: imageId
             AttributeType: S
         KeySchema:
-          - AttributeName: todosId
+          - AttributeName: todoId
             KeyType: HASH
           - AttributeName: timestamp
             KeyType: RANGE
