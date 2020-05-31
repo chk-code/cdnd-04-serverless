@@ -33,7 +33,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
 }
 async function getTodosPerUser(userId: string) {
-  logger.info('Query Table for User: ', userId)
+  logger.info("Query Table for User: " + userId + " !")
   const result = await docClient.query({
     TableName: todosTable,
     IndexName: todosUserIdIdx,
@@ -41,7 +41,7 @@ async function getTodosPerUser(userId: string) {
     ExpressionAttributeNames: {'#k' : 'userId'},
     ExpressionAttributeValues:{':uId' : userId}
   }).promise()
-  logger.info('Return result from table query.')
+  logger.info("Return result from table query.")
   const items = result.Items
   logger.info("Found " + result.Count + " elements", items);
 

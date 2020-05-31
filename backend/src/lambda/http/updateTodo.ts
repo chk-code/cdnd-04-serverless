@@ -4,11 +4,15 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 import * as AWS  from 'aws-sdk'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { createLogger } from '../../utils/logger'
+import { TodoItem } from '../../models/TodoItem'
 
 const logger = createLogger('update-todo')
 
 const docClient = new AWS.DynamoDB.DocumentClient()
 const todosTable = process.env.TODOS_TABLE
+// const todosNameIdx = process.env.TODOS_IDX_NAME
+const todosTodoIdIdx = process.env.TODOS_ID_INDEX
+//const todosUserIdIdx = process.env.USER_ID_INDEX
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const todoId = event.pathParameters.todoId
@@ -27,7 +31,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       })
     }
   }
-  const todoItems = getTodoPerTodoId(todoId)
+  const todoItems = await getTodoPerTodoId(todoId)
   if (!todoItems){
     logger.info('Item not found.')
     return{
@@ -50,7 +54,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         ":d":updatedTodo.dueDate,
         ":b":updatedTodo.done
     },
-    ReturnValues:"UPDATED_NEW"
+    ReturnValues:"ALL_NEW"
   }
 
   logger.info('Patching Todo Item: ', todoItems[0])
@@ -61,7 +65,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     } else {
         logger.info("Update succeeded:", JSON.stringify(data, null, 2));
     }
-  })
+  }).promise()
   logger.info("Update of Todo Item succeeded: ", updResult)
   return {
     statusCode: 200,
@@ -72,15 +76,23 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
 }
 async function getTodoPerTodoId(todoId: string) {
-  logger.info('Query Table for Todo: ', todoId)
+  logger.info("Query Table for TodoId: " + todoId + " !")
   const result = await docClient.query({
     TableName: todosTable,
-    KeyConditionExpression: 'todoId = :todoId',
-    ExpressionAttributeValues: {
-      ':todoId': todoId
-    },
-    ScanIndexForward: false
+    IndexName: todosTodoIdIdx,
+    KeyConditionExpression: '#k = :tId ',
+    ExpressionAttributeNames: {'#k' : 'todoId'},
+    ExpressionAttributeValues:{':tId' : todoId}
   }).promise()
-  logger.info('Return result from table query.')
-  return result.Items
+  logger.info("Return result from table query.")
+  const items = result.Items
+  logger.info("Found " + result.Count + " elements", items);
+
+  if (result.Count == 0)
+    throw new Error('Element not found')
+  if (result.Count > 1)
+    throw new Error('todoId is not Unique')
+  const item = items[0]
+  
+  return item as TodoItem
 } 
