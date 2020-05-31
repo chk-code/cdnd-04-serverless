@@ -16,7 +16,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   // DONE: Get all TODO items for a current user
   logger.info('Processing event: ', event)
   const userId = getUserId(event)
-  logger.info('Get ToDos for user : ', userId)
+  logger.info("Get ToDos for user : " + userId + " !", event)
   const todos = await getTodosPerUser(userId)
   logger.info('Return Todos: ', todos)
 
