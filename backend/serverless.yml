@@ -246,7 +246,7 @@ resources:
             KeySchema:
               - AttributeName: todoId
                 KeyType: HASH
-              - AttributeName: userId
+              - AttributeName: createdAt
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL # What attributes will be copied to an index
