@@ -31,8 +31,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       })
     }
   }
-  const todoItems = await getTodoPerTodoId(todoId)
-  if (!todoItems){
+  const todoItem = await getTodoPerTodoId(todoId)
+  if (!todoItem){
     logger.info('Item not found.')
     return{
       statusCode: 404,
@@ -46,7 +46,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const itemUpdate = {
     TableName: todosTable,
     Key:{
-        todoId: todoId
+        todoId: todoItem.todoId,
+        createdAt: todoItem.createdAt
     },
     UpdateExpression: "set name = :n, dueDate = :d, done = :b",
     ExpressionAttributeValues:{
@@ -57,7 +58,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     ReturnValues:"ALL_NEW"
   }
 
-  logger.info('Patching Todo Item: ', todoItems[0])
+  logger.info('Patching Todo Item: ', todoItem)
   // Patch
   const updResult = docClient.update(itemUpdate, function(err, data) {
     if (err) {
