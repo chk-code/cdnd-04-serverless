@@ -9,7 +9,9 @@ const logger = createLogger('get-todos')
 
 const docClient = new AWS.DynamoDB.DocumentClient()
 const todosTable = process.env.TODOS_TABLE
-const todosTableIdx = process.env.TODOS_INDEX_NAME
+// const todosNameIdx = process.env.TODOS_IDX_NAME
+// const todosTodoIdIdx = process.env.TODOS_ID_INDEX
+const todosUserIdIdx = process.env.USER_ID_INDEX
 
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -34,7 +36,7 @@ async function getTodosPerUser(userId: string) {
   logger.info('Query Table for User: ', userId)
   const result = await docClient.query({
     TableName: todosTable,
-    IndexName: todosTableIdx,
+    IndexName: todosUserIdIdx,
     KeyConditionExpression: '#k = :uId ',
     ExpressionAttributeNames: {'#k' : 'userId'},
     ExpressionAttributeValues:{':uId' : userId}
