@@ -13,7 +13,7 @@ const todosTableIdx = process.env.TODOS_INDEX_NAME
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   // DONE: Get all TODO items for a current user
-  logger.info('Processing event: ', event.body.toString)
+  logger.info('Processing event: ', event)
   const userId = getUserId(event)
   logger.info('Get ToDos for user : ', userId)
   const todos = await getTodosPerUser(userId)
