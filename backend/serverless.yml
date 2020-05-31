@@ -18,33 +18,11 @@ provider:
   environment:
     TODOS_TABLE: ToDos-${self:provider.stage}
     IMAGES_TABLE: Images-${self:provider.stage}
-    TODOS_INDEX_NAME: TodosIdIndex-${self:provider.stage}
+    TODOS_IDX_NAME: TodosNameIdx-${self:provider.stage}
+    TODOS_ID_INDEX: TodosIdIdx-${self:provider.stage}
+    USER_ID_INDEX: TodosUserIdIdx-${self:provider.stage}
     IMAGES_S3_BUCKET: cdnd-04-serverless-todoapp-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
-
-# iamRoleStatements:
-#     - Effect: Allow
-#       Action:
-#         - dynamodb:Scan
-#         - dynamodb:PutItem
-#         - dynamodb:GetItem
-#         - dynamodb:DeleteItem
-#         - dynamodb:UpdateItem
-#       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-#     - Effect: Allow
-#       Action:
-#         - dynamodb:PutItem
-#         - dynamodb:Query
-#       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.IMAGES_TABLE}
-#     - Effect: Allow
-#       Action:
-#         - dynamodb:Query
-#       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.IMAGES_TABLE}/index/${self:provider.environment.TODOS_INDEX_NAME}
-#     - Effect: Allow
-#       Action:
-#         - s3:PutObject
-#         - s3:GetObject
-#       Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
 
 custom:
   documentation:
@@ -78,7 +56,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_INDEX_NAME}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_IDX_NAME}
       - Effect: Allow
         Action:
           - s3:GetObject
@@ -111,7 +89,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_INDEX_NAME}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_IDX_NAME}
 
   # DONE: Configure this function
   UpdateTodo:
@@ -140,7 +118,7 @@ functions:
           - dynamodb:PutItem
           - dynamodb:Query
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_INDEX_NAME}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_IDX_NAME}
 
   # DONE: Configure this function
   DeleteTodo:
@@ -167,7 +145,7 @@ functions:
           - dynamodb:DeleteItem
           - dynamodb:GetItem
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_INDEX_NAME}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_IDX_NAME}
 
   # DONE: Configure this function
   GenerateUploadUrl:
@@ -194,7 +172,7 @@ functions:
           - dynamodb:Query
           - dynamodb:GetItem
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_INDEX_NAME}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_IDX_NAME}
       - Effect: Allow
         Action:
           - s3:PutObject
@@ -225,31 +203,43 @@ resources:
 
     # TABLES
     TodosTable:
-      Type: AWS::DynamoDB::Table
+      Type: "AWS::DynamoDB::Table"
       Properties:
         AttributeDefinitions:
           - AttributeName: todoId
             AttributeType: S
           - AttributeName: createdAt
             AttributeType: S
+          - AttributeName: name
+            AttributeType: S
           - AttributeName: userId
             AttributeType: S
         KeySchema:
           - AttributeName: todoId
             KeyType: HASH
-          - AttributeName: userId
+          - AttributeName: createdAt
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
-        LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODOS_INDEX_NAME}
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.TODOS_IDX_NAME}
             KeySchema:
-              - AttributeName: todoId
-                KeyType: HASH
-              - AttributeName: createdAt
-                KeyType: RANGE
+            - AttributeName: name
+              KeyType: HASH
             Projection:
-              ProjectionType: ALL # What attributes will be copied to an index
+              ProjectionType: ALL
+          - IndexName: ${self:provider.environment.TODOS_ID_INDEX}
+            KeySchema:
+            - AttributeName: todoId
+              KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: ${self:provider.environment.USER_ID_INDEX}
+            KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            Projection:
+              ProjectionType: ALL
     AttachImgsTable:
       Type: "AWS::DynamoDB::Table"
       Properties:
