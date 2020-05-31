@@ -3,6 +3,7 @@ import { createLogger } from '../../utils/logger'
 import * as AWS  from 'aws-sdk'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import { getUserId } from '../utils'
+import { TodoItem } from '../../models/TodoItem'
 
 const logger = createLogger('get-todos')
 
@@ -34,11 +35,13 @@ async function getTodosPerUser(userId: string) {
   const result = await docClient.query({
     TableName: todosTable,
     IndexName: todosTableIdx,
-    KeyConditionExpression: 'userId = :userId',
-    ExpressionAttributeValues: {
-      ':userId': userId
-    },
+    KeyConditionExpression: '#k = :uId ',
+    ExpressionAttributeNames: {'#k' : 'userId'},
+    ExpressionAttributeValues:{':uId' : userId}
   }).promise()
   logger.info('Return result from table query.')
-  return result.Items
+  const items = result.Items
+  logger.info("Found " + result.Count + " elements", items);
+
+  return items as TodoItem[]
 } 
