@@ -93,7 +93,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     try {
       const todos = await getTodos(this.props.auth.getIdToken())
       this.setState({
-        todos,
+        todos: [],
         loadingTodos: false
       })
     } catch (e) {
@@ -157,8 +157,9 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   }
 
   renderTodosList() {
+    console.log('TODOS ARRAY: ',this.state.todos)
     return (
-      <Grid padded>
+      <Grid padded>        
         { this.state.todos.map((todo, pos) => {
           return (
             <Grid.Row key={todo.todoId}>
