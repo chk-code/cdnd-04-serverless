@@ -247,7 +247,7 @@ resources:
               - AttributeName: todoId
                 KeyType: HASH
               - AttributeName: userId
-                KeyType: HASH
+                KeyType: RANGE
             Projection:
               ProjectionType: ALL # What attributes will be copied to an index
     AttachImgsTable:
