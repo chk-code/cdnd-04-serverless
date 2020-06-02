@@ -4,12 +4,15 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } f
 import { createLogger } from '../../utils/logger'
 import * as AWS  from 'aws-sdk'
 import * as uuid from 'uuid'
+import { getUserId } from '../utils'
+import { TodoItem } from '../../models/TodoItem'
 
 const docClient = new AWS.DynamoDB.DocumentClient()
 const s3 = new AWS.S3({
   signatureVersion: 'v4'
 })
 const todosTable = process.env.TODOS_TABLE
+const todosTodoIdIdx = process.env.TODOS_ID_INDEX
 const imagesTable = process.env.IMAGES_TABLE
 const bucketName = process.env.IMAGES_S3_BUCKET
 const urlExpiration = process.env.SIGNED_URL_EXPIRATION
@@ -24,45 +27,23 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     return {
       statusCode: 404,
       headers: {
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
       },
       body: JSON.stringify({
         error: 'Todo not provided.'
       })
     }
   }
-  const validTodoId = await todoExists(todoId)
-
-  if (!validTodoId) {
-    logger.error('Todo does not exist', todoId)
-    return {
-      statusCode: 404,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({
-        error: 'Todo does not exist'
-      })
-    }
-  }
+  
   const imageId = uuid.v4()
-  const imageURL = await createImage(todoId, imageId, event)
-
   const signedURL = getUploadUrl(imageId)
+  const imageURL = await createImage(todoId, imageId, event)
+  logger.info("Image created, Signed URL: "+signedURL+" - Image URL: "+imageURL+" -!")
   logger.info("Updating Todos Item")
-  const updateItem = {
-    TableName: this.todosTable,
-    Key: {
-        todoId: todoId
-    },
-    UpdateExpression: "set attachmentUrl = :r",
-    ExpressionAttributeValues: {
-        ":r": imageURL
-    },
-    ReturnValues: "UPDATED_NEW"
-  }
-  await this.docClient.update(updateItem).promise()
-  logger.info("Update complete. Presigned URL generated successfully ", signedURL)
+
+  const updItem = await updateTodoWithURL(todoId,imageURL,event)
+  logger.info("Update complete. Presigned URL generated successfully ", updItem)
   // DONE: Return a presigned URL to upload a file for a TODO item with the provided id
   return {
     statusCode: 201,
@@ -70,45 +51,31 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       'Access-Control-Allow-Origin': '*'
     },
     body: JSON.stringify({
-      signedURL: signedURL,
-      imageUrl: imageURL
+      "uploadUrl": signedURL
     })
   }
 }
 
-async function todoExists(todoId: string) {
-  const result = await docClient
-    .get({
-      TableName: todosTable,
-      Key: {
-        todoId: todoId
-      }
-    })
-    .promise()
-
-  logger.info('Get Todo: ', result)
-  return !!result.Item
-}
 async function createImage(todoId: string, imageId: string, event: any) {
   const timestamp = new Date().toISOString()
   const newImage = JSON.parse(event.body)
 
-  const newItem = {
+  const newImgItem = {
     todoId,
     timestamp,
     imageId,
     ...newImage,
     imageUrl: `https://${bucketName}.s3.amazonaws.com/${imageId}`
   }
-  logger.info('Storing new item: ', newItem)
+  logger.info('Storing new Image item in Image DB: ', newImgItem)
   await docClient
     .put({
       TableName: imagesTable,
-      Item: newItem
+      Item: newImgItem
     })
     .promise()
 
-  return newItem.imageUrl
+  return newImgItem.imageUrl
 }
 function getUploadUrl(imageId: string) {
   return s3.getSignedUrl('putObject', {
@@ -117,3 +84,50 @@ function getUploadUrl(imageId: string) {
     Expires: urlExpiration
   })
 }
+async function updateTodoWithURL(todoId: string, signedURL: String, event: APIGatewayProxyEvent): Promise<TodoItem> {
+  const userId = getUserId(event)
+  const currentItem = await getTodoItemById(todoId)
+  logger.info("Update of Todo Item - "+todoId+" - for User - "+userId+" -!")
+  const itemUpdate = {
+    TableName: todosTable,
+    Key:{
+        todoId: todoId,
+        createdAt: currentItem.createdAt
+    },
+    UpdateExpression: "set #aU=:attURL",
+    ExpressionAttributeNames: {'#aU' : 'attachmentUrl'},
+    ExpressionAttributeValues:{
+      ":attURL": signedURL
+    },
+    ReturnValues:"UPDATED_NEW"
+  }
+    const updResult  = await docClient
+  .update(itemUpdate, function(err, data) {
+    if (err) {
+        logger.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
+    } else {
+        logger.info("Update succeeded:", JSON.stringify(data, null, 2));
+    }
+  }).promise()
+
+  return updResult.$response.data as TodoItem
+  }
+async function getTodoItemById(todoId: any): Promise<TodoItem> {
+    logger.info("Starting to fetch item with TodoID: "+todoId);
+    const result = await docClient.query({
+      TableName: todosTable,
+      IndexName: todosTodoIdIdx,
+      KeyConditionExpression: '#k = :id ',
+      ExpressionAttributeNames: {'#k' : 'todoId'},
+      ExpressionAttributeValues:{':id' : todoId}
+    }).promise()
+    logger.info("Completed getTodoItemById");
+    logger.info("Found " + result.Count + " element (it must be unique)");
+    if (result.Count == 0)
+      throw new Error('Element not found')
+    if (result.Count > 1)
+      throw new Error('todoId is not Unique')
+    const item = result.Items[0]
+    logger.info("This is the item: ",item);
+    return item as TodoItem
+  }
