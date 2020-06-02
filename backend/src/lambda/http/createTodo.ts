@@ -24,13 +24,13 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   // DONE: Implement creating a new TODO item
   logger.info('Creating new Todo for user: ', userId)
   const newTodo = {
-    todoId: todoId,
     userId: userId,
+    todoId: todoId,
     createdAt: timestamp,
-    done: false,
-    attachmentUrl: "https://",
     name: createTodo.name,
-    dueDate: createTodo.dueDate
+    dueDate: createTodo.dueDate,
+    done: false,
+    //attachmentUrl: "https://"
   }
   // Writing newTodo to DynamoDB
   logger.info('Writing new Todo to Table: ')
@@ -44,8 +44,10 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   return {
     statusCode: 201,
     headers: {
-      'Access-Control-Allow-Origin': '*'
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true
     },
+    // Use item: newTodo format for the frontend
     body: JSON.stringify({item: newTodo})
   }
 }

@@ -5,6 +5,7 @@ import * as AWS  from 'aws-sdk'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { createLogger } from '../../utils/logger'
 import { TodoItem } from '../../models/TodoItem'
+import { getUserId } from '../utils'
 
 const logger = createLogger('update-todo')
 
@@ -31,23 +32,29 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       })
     }
   }
-  const todoItem = await getTodoPerTodoId(todoId)
-  if (!todoItem){
-    logger.info('Item not found.')
-    return{
-      statusCode: 404,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: "Item not found."
-    }
-  }
+  logger.info('Patching Todo Item: ')
+  // Patch
+  const updItem = await updateExistingTodo(todoId,updatedTodo, event)
 
+  logger.info("Update of Todo Item succeeded: ", updItem)
+  return {
+    statusCode: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    },
+    body: JSON.stringify({item: updItem})
+  }
+}
+
+async function updateExistingTodo(todoId: string, updatedTodo: UpdateTodoRequest, event: APIGatewayProxyEvent): Promise<TodoItem> {
+  const userId = getUserId(event)
+  const currentItem = await getTodoItemById(todoId)
+  logger.info("Update of Todo Item - "+todoId+" - for User - "+userId+" -!")
   const itemUpdate = {
     TableName: todosTable,
     Key:{
-        todoId: todoItem.todoId,
-        createdAt: todoItem.createdAt
+        todoId: todoId,
+        createdAt: currentItem.createdAt
     },
     UpdateExpression: "set name = :n, dueDate = :d, done = :b",
     ExpressionAttributeValues:{
@@ -55,45 +62,36 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         ":d":updatedTodo.dueDate,
         ":b":updatedTodo.done
     },
-    ReturnValues:"ALL_NEW"
+    ReturnValues:"UPDATED_NEW"
   }
-
-  logger.info('Patching Todo Item: ', itemUpdate)
-  // Patch
-  const updResult = docClient.update(itemUpdate, function(err, data) {
+  
+  const updResult  = await docClient
+  .update(itemUpdate, function(err, data) {
     if (err) {
         logger.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
     } else {
         logger.info("Update succeeded:", JSON.stringify(data, null, 2));
     }
   }).promise()
-  logger.info("Update of Todo Item succeeded: ", updResult)
-  return {
-    statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    },
-    body: JSON.stringify({item: updResult})
-  }
+
+  return updResult.$response.data as TodoItem
 }
-async function getTodoPerTodoId(todoId: string) {
-  logger.info("Query Table for TodoId: " + todoId + " !")
-  const result = await docClient.query({
+async function getTodoItemById(todoId: any): Promise<TodoItem> {
+  logger.info("Starting to fetch item with TodoID: "+todoId);
+  const result = await this.docClient.query({
     TableName: todosTable,
     IndexName: todosTodoIdIdx,
-    KeyConditionExpression: '#k = :tId ',
+    KeyConditionExpression: '#k = :id ',
     ExpressionAttributeNames: {'#k' : 'todoId'},
-    ExpressionAttributeValues:{':tId' : todoId}
+    ExpressionAttributeValues:{':id' : todoId}
   }).promise()
-  logger.info("Return result from table query.")
-  const items = result.Items
-  logger.info("Found " + result.Count + " elements", items);
-
+  logger.info("Completed getTodoItemById");
+  logger.info("Found " + result.Count + " element (it must be unique)");
   if (result.Count == 0)
     throw new Error('Element not found')
   if (result.Count > 1)
     throw new Error('todoId is not Unique')
-  const item = items[0]
-  
+  const item = result.Items[0]
+  logger.info("This is the item: ",item);
   return item as TodoItem
-} 
+}
