@@ -66,7 +66,7 @@ async function deleteTodoItem(delTodo: TodoItem): Promise<boolean> {
   logger.info("Deleting Item "+delTodo.todoId);
   // TODO: Delete also S3 items
   const delResult = await docClient.delete({
-    TableName: this.todoTable,
+    TableName: todosTable,
     Key:
     {
       todoId: delTodo.todoId,
