@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "d0700d24-79ec-487e-8403-b565bef7f8e0",
-		"name": "Udacity C4 Project",
+		"_postman_id": "ef1301e2-9768-4d53-b28c-f6e4c3266b48",
+		"name": "Udacity C4 Project - DEV and PROD",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -19,22 +19,18 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"raw": "https://{{apiId}}.execute-api.{{awsRegion}}.amazonaws.com/{{stage}}/todos",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"{{awsRegion}}",
 								"amazonaws",
 								"com"
 							],
 							"path": [
-								"dev",
+								"{{stage}}",
 								"todos"
 							]
 						}
@@ -60,20 +56,20 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"Water flowers\",\n\t\"dueDate\": \"2019-06-11\"\n}"
+							"raw": "{\n\t\"name\": \"Test 1\",\n\t\"dueDate\": \"2020-06-11\"\n}"
 						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"raw": "https://{{apiId}}.execute-api.{{awsRegion}}.amazonaws.com/{{stage}}/todos",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"{{awsRegion}}",
 								"amazonaws",
 								"com"
 							],
 							"path": [
-								"dev",
+								"{{stage}}",
 								"todos"
 							]
 						}
@@ -83,7 +79,7 @@
 				{
 					"name": "Update todo",
 					"request": {
-						"method": "PUT",
+						"method": "PATCH",
 						"header": [
 							{
 								"key": "Content-Type",
@@ -99,22 +95,22 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"Change the world\",\n\t\"dueDate\": \"2019-12-11\",\n\t\"done\": true\n}"
+							"raw": "{\n\t\"name\": \"Change the world 2\",\n\t\"dueDate\": \"2022-12-11\",\n\t\"done\": true\n}"
 						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos/35dd600f-43c2-4649-903c-615e1586a26f",
+							"raw": "https://{{apiId}}.execute-api.{{awsRegion}}.amazonaws.com/{{stage}}/todos/81295e5c-77b2-45ec-b843-8637f0029216",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"{{awsRegion}}",
 								"amazonaws",
 								"com"
 							],
 							"path": [
-								"dev",
+								"{{stage}}",
 								"todos",
-								"35dd600f-43c2-4649-903c-615e1586a26f"
+								"81295e5c-77b2-45ec-b843-8637f0029216"
 							]
 						}
 					},
@@ -142,19 +138,19 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos/fe671583-4512-45f6-9475-4265c04362fb",
+							"raw": "https://{{apiId}}.execute-api.{{awsRegion}}.amazonaws.com/{{stage}}/todos/81295e5c-77b2-45ec-b843-8637f0029216",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"{{awsRegion}}",
 								"amazonaws",
 								"com"
 							],
 							"path": [
-								"dev",
+								"{{stage}}",
 								"todos",
-								"fe671583-4512-45f6-9475-4265c04362fb"
+								"81295e5c-77b2-45ec-b843-8637f0029216"
 							]
 						}
 					},
@@ -176,17 +172,17 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos/3836b777-9bc4-4429-9b79-ba4e4f5f91c0/attachment",
+							"raw": "https://{{apiId}}.execute-api.{{awsRegion}}.amazonaws.com/{{stage}}/todos/3836b777-9bc4-4429-9b79-ba4e4f5f91c0/attachment",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"{{awsRegion}}",
 								"amazonaws",
 								"com"
 							],
 							"path": [
-								"dev",
+								"{{stage}}",
 								"todos",
 								"3836b777-9bc4-4429-9b79-ba4e4f5f91c0",
 								"attachment"
@@ -200,7 +196,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "ce2b42d4-8cc5-4f30-a6ed-e7f0f303c3fd",
+						"id": "6e0f07e8-9eb7-449c-b84e-d5a0798397e4",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -210,21 +206,22 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "efb16c49-3866-4241-97d1-360ad72736d8",
+						"id": "42aa62ec-7916-475c-a273-007dad7f53d1",
 						"type": "text/javascript",
 						"exec": [
 							""
 						]
 					}
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		}
 	],
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "2e83c0fe-6650-44d5-a90f-4c27ff720d83",
+				"id": "d893b326-7c74-4a2b-a123-b5fa52a3f876",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -234,7 +231,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "977c227e-2df3-42eb-9a48-ec25e2f7eeae",
+				"id": "153597c6-6b5d-4f01-b2f1-e6a0ec7d9fd0",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -244,16 +241,29 @@
 	],
 	"variable": [
 		{
-			"id": "bf208e6b-f66d-4008-9366-dd541ff65425",
+			"id": "60c711ed-7a06-47fc-9570-5310980cc27a",
 			"key": "apiId",
-			"value": "",
+			"value": "oye9ivnfag",
 			"type": "string"
 		},
 		{
-			"id": "9bc6399a-d2bb-4f2d-9ffa-8480370d383c",
+			"id": "bd15b69d-f22b-4677-bfa0-fd0226e3f65e",
 			"key": "authToken",
-			"value": "",
+			"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlhJOGQ4dl80aVNUNjNSUjdvUHduMSJ9.eyJpc3MiOiJodHRwczovL2h5ZHJvbmV0LmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJnb29nbGUtb2F1dGgyfDEwMzg2ODcyNTM1NzA0NTIwODI5MiIsImF1ZCI6Ikx3QVZHZXNNZjJ6TGpTNXpRcDRYRTI3Qk5CMlZ1enJTIiwiaWF0IjoxNTkxMDkyNDY2LCJleHAiOjE1OTExMjg0NjYsImF0X2hhc2giOiJncXVxYmNZRnRmS1piU19WWXFXZVJ3Iiwibm9uY2UiOiJtSWRBY3VJVi5VWnI1c01LNTk3LU5vRW5QSW5NLk4zTCJ9.R2OUCn9WP_1Q-_0Ph_ZUmuXzIXx7ogLCP1mZzH3E99NIdy9k2VUTGHgE33fQ-3zDjJhefftb-yKz5qXQOvwHPZJj00rvVAYMF3VuE_tEVDeOtzbtCZekueXlTvrK8Q4PnaxeBweGXy5tCnuqKSgrddb_2booDNsv75v1tuhucjG3SP5FlJhyXLhO5KQ1GiBxJfI744su6n6jFNvyjpFCfbHLd7W4a6A0YKHE7_P1PzTJq7NciYvAoyrFlpOz3kieFYbu9s8_emIL_nRu21-oWBMXLIOHmgevFNZU7BHC5Af-Sz3FgujMYqSAn70fQzqnqQByUh3y5AgtMKVB51qAKA",
+			"type": "string"
+		},
+		{
+			"id": "51a22420-1aa8-4823-bb3e-3267737771bb",
+			"key": "awsRegion",
+			"value": "eu-central-1",
+			"type": "string"
+		},
+		{
+			"id": "2553ffb6-2650-4154-bbaf-0d9b0754b8c8",
+			"key": "stage",
+			"value": "prod",
 			"type": "string"
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }
