@@ -42,7 +42,7 @@ custom:
       title: "CDND-04-Serverless TODO App"
       description: "Serverless ToDo App for CDND04. (c) Christian Kulik"
       contact:
-        name: "Christian"
+        name: "Christian K"
         url: "https://github.com/chk-code"
         email: "63784760+chk-code@users.noreply.github.com"
       license:
@@ -167,7 +167,6 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:DeleteItem
-          - dynamodb:GetItem
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_IDX_NAME}
       - Effect: Allow
@@ -214,7 +213,6 @@ functions:
         Action:
           - dynamodb:Query
           - dynamodb:GetItem
-          - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_IDX_NAME}
       - Effect: Allow
         Action:
