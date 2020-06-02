@@ -112,11 +112,11 @@ export class Todos_Data_Access{
           }).promise()
     }
     // UPDATE Functions
-    async updateTodo(todoId: string, userId: string, updateTodo: any): Promise<TodoItem> {
+    async updateTodo(todo_Id: string, user_Id: string, updateTodo: any): Promise<TodoItem> {
         logger.info("### Starting updateTodo ###")
         const tblKey = {
-          todoId: todoId,
-          userId: userId
+          userId: user_Id,
+          todoId: todo_Id          
         }
         const resUpd = await this.docClient.update({
             TableName: this.todoTable,
@@ -132,7 +132,7 @@ export class Todos_Data_Access{
               ':dD' : updateTodo.dueDate,
               ':d' : updateTodo.done,
               },
-            ReturnValues: "UPDATED_NEW"
+            ReturnValues: "ALL_NEW"
           }).promise()  
         logger.info("### End of updateTodo ###")
         return resUpd.$response.data as TodoItem  

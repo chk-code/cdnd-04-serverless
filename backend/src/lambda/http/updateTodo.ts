@@ -29,7 +29,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
   logger.info('Patching Todo Item: ')
   // Patch
-  logger.info(`Request from ${userId} for updating Todo: `, updatedTodo)
+  logger.info(`Request from ${userId} for updating Todo ${todoId} `, updatedTodo)
   const updItem = await updateTodo(todoId, userId, updatedTodo)
 
   logger.info("Update of Todo Item succeeded: ", updItem)
