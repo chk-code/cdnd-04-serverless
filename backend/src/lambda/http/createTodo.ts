@@ -1,20 +1,25 @@
 import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
-import * as AWS  from 'aws-sdk'
+import * as AWS from 'aws-sdk'
+import * as AWSXray from 'aws-xray-sdk'
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 import { getUserId } from "../utils"
 import { createLogger } from '../../utils/logger'
 import * as uuid from 'uuid'
 
+const XAWS = AWSXray.captureAWS(AWS)
 const logger = createLogger('create-todo')
 
-const docClient = new AWS.DynamoDB.DocumentClient()
+const docClient = new XAWS.DynamoDB.DocumentClient()
 const todosTable = process.env.TODOS_TABLE
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing new Todo: ', event)
   const createTodo: CreateTodoRequest = JSON.parse(event.body)
+  if(!createTodo.name){
+    logger.info("WARNING: Todo Name is empty!")
+  }
   logger.info('Request for new Todo: ', createTodo)
 
   const userId = getUserId(event)

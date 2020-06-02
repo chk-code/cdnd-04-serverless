@@ -6,8 +6,10 @@ import * as AWS  from 'aws-sdk'
 import * as uuid from 'uuid'
 import { getUserId } from '../utils'
 import { TodoItem } from '../../models/TodoItem'
+import * as AWSXray from 'aws-xray-sdk'
+const XAWS = AWSXray.captureAWS(AWS)
 
-const docClient = new AWS.DynamoDB.DocumentClient()
+const docClient = new XAWS.DynamoDB.DocumentClient()
 const s3 = new AWS.S3({
   signatureVersion: 'v4'
 })

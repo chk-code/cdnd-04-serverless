@@ -6,10 +6,12 @@ import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { createLogger } from '../../utils/logger'
 import { TodoItem } from '../../models/TodoItem'
 import { getUserId } from '../utils'
+import * as AWSXray from 'aws-xray-sdk'
+const XAWS = AWSXray.captureAWS(AWS)
 
 const logger = createLogger('update-todo')
 
-const docClient = new AWS.DynamoDB.DocumentClient()
+const docClient = new XAWS.DynamoDB.DocumentClient()
 const todosTable = process.env.TODOS_TABLE
 // const todosNameIdx = process.env.TODOS_IDX_NAME
 const todosTodoIdIdx = process.env.TODOS_ID_INDEX

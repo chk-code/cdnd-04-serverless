@@ -4,10 +4,12 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } f
 import { createLogger } from '../../utils/logger'
 import * as AWS  from 'aws-sdk'
 import { TodoItem } from '../../models/TodoItem'
+import * as AWSXray from 'aws-xray-sdk'
+const XAWS = AWSXray.captureAWS(AWS)
 
 const logger = createLogger('delete-todo')
 
-const docClient = new AWS.DynamoDB.DocumentClient()
+const docClient = new XAWS.DynamoDB.DocumentClient()
 const todosTable = process.env.TODOS_TABLE
 const todosTodoIdIdx = process.env.TODOS_ID_INDEX
 // TODO: Delete Images of Todo

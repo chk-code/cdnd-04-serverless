@@ -4,10 +4,12 @@ import * as AWS  from 'aws-sdk'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import { getUserId } from '../utils'
 import { TodoItem } from '../../models/TodoItem'
+import * as AWSXray from 'aws-xray-sdk'
+const XAWS = AWSXray.captureAWS(AWS)
 
 const logger = createLogger('get-todos')
 
-const docClient = new AWS.DynamoDB.DocumentClient()
+const docClient = new XAWS.DynamoDB.DocumentClient()
 const todosTable = process.env.TODOS_TABLE
 // const todosNameIdx = process.env.TODOS_IDX_NAME
 // const todosTodoIdIdx = process.env.TODOS_ID_INDEX

@@ -14,7 +14,16 @@ provider:
 
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'eu-central-1'}
-
+  tracing:
+    lambda: true
+    apiGateway: true
+    iamRoleStatements:            # Permissions here or under every function to trace
+      - Effect: 'Allow'           # xray tracing permissions
+        Action:
+          - 'xray:PutTraceSegments'             # Trace Segments
+          - 'xray:PutTelemetryRecords'          # Tracing and telemetry
+        Resource:
+          - '*'
   environment:
     TODOS_TABLE: ToDos-${self:provider.stage}
     IMAGES_TABLE: Images-${self:provider.stage}
@@ -67,6 +76,7 @@ functions:
           path: todos
           authorizer: Auth
           cors: true
+          reqValidatorName: RequestBodyValidator
 
   # DONE: Configure this function
   CreateTodo:
@@ -76,6 +86,7 @@ functions:
           method: post
           path: todos
           cors: true
+          reqValidatorName: RequestBodyValidator
           authorizer: Auth
           documentation:
             summary: Create a new Todo
@@ -99,6 +110,7 @@ functions:
           method: patch
           path: todos/{todoId}
           cors: true
+          reqValidatorName: RequestBodyValidator
           authorizer: Auth
           documentation:
             summary: Update a Todo
