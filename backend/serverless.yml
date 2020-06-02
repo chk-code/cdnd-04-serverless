@@ -6,6 +6,7 @@ plugins:
   - serverless-aws-documentation
   - serverless-iam-roles-per-function
   - serverless-reqvalidator-plugin
+  - serverless-plugin-tracing
 
 provider:
   name: aws
