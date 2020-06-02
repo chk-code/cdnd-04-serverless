@@ -62,7 +62,7 @@ export class Todos_Data_Access{
         const getRes = await this.docClient.query({
             TableName: this.todoTable,
             IndexName: this.userIdIdx,
-            KeyConditionExpression: '#ID = :uId ',
+            KeyConditionExpression: '#ID = :uId',
             ExpressionAttributeNames: {'#ID' : 'userId'},
             ExpressionAttributeValues:{':uId' : userId}
         }).promise()
@@ -114,9 +114,13 @@ export class Todos_Data_Access{
     // UPDATE Functions
     async updateTodo(todoId: string, userId: string, updateTodo: any): Promise<TodoItem> {
         logger.info("### Starting updateTodo ###")
+        const tblKey = {
+          todoId: todoId,
+          userId: userId
+        }
         const resUpd = await this.docClient.update({
             TableName: this.todoTable,
-            KeyConditionExpression: '#uID = :usID, #tID = :toID',
+            Key: tblKey,
             UpdateExpression: 'set #n = :n, #dD = :dD, #d = :d',
             ExpressionAttributeNames: {
                 '#n' : 'name',
