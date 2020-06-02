@@ -30,7 +30,7 @@ provider:
     IMAGES_TABLE: Images-${self:provider.stage}
     TODOS_IDX_NAME: TodosNameIdx-${self:provider.stage}
     TODOS_ID_INDEX: TodosIdIdx-${self:provider.stage}
-    CREATEDAT_IDX: TodosUserIdIdx-${self:provider.stage}
+    USERID_IDX: TodosUserIdIdx-${self:provider.stage}
     IMAGES_S3_BUCKET: cdnd-04-serverless-todoapp-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
@@ -38,7 +38,7 @@ custom:
   documentation:
   api:
     info:
-      version: v1.0.0
+      version: v1.1.0
       title: CDND-04-Serverless TODO App
       description: Serverless ToDo App for CDND04. (c) Christian Kulik
   models:
@@ -66,7 +66,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.CREATEDAT_IDX}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.USERID_IDX}
       - Effect: Allow
         Action:
           - s3:GetObject
@@ -246,8 +246,6 @@ resources:
             AttributeType: S
           - AttributeName: todoId
             AttributeType: S
-          - AttributeName: createdAt
-            AttributeType: S
           - AttributeName: name
             AttributeType: S
         KeySchema:
@@ -270,9 +268,9 @@ resources:
               KeyType: HASH
             Projection:
               ProjectionType: ALL
-          - IndexName: ${self:provider.environment.CREATEDAT_IDX}
+          - IndexName: ${self:provider.environment.USERID_IDX}
             KeySchema:
-            - AttributeName: createdAt
+            - AttributeName: userId
               KeyType: HASH
             Projection:
               ProjectionType: ALL
