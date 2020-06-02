@@ -143,9 +143,13 @@ export class Todos_Data_Access{
     }
     async updateTodoURL(todoId: string, userId: string, signedURL: string): Promise<TodoItem> {
         logger.info("### Starting updateTodoURL ###")
+        const tblKey = {
+          todoId: todoId,
+          userId: userId
+        }
         const resUpd = await this.docClient.update({
             TableName: this.todoTable,
-            KeyConditionExpression: '#uID = :usID, #tID = :toID',
+            KeyConditionExpression: tblKey,
             UpdateExpression: 'set attachmentUrl = :attUrl',
             ExpressionAttributeNames: {
                 '#uID' : 'userId',
