@@ -45,7 +45,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 }
 async function getTodoItemById(todoId: any): Promise<TodoItem> {
   logger.info("Starting to fetch item with TodoID: "+todoId);
-  const result = await this.docClient.query({
+  const result = await docClient.query({
     TableName: todosTable,
     IndexName: todosTodoIdIdx,
     KeyConditionExpression: '#k = :id ',
