@@ -38,9 +38,16 @@ custom:
   documentation:
   api:
     info:
-      version: v1.1.0
-      title: CDND-04-Serverless TODO App
-      description: Serverless ToDo App for CDND04. (c) Christian Kulik
+      version: "v1.1.0"
+      title: "CDND-04-Serverless TODO App"
+      description: "Serverless ToDo App for CDND04. (c) Christian Kulik"
+      contact:
+        name: "Christian"
+        url: "https://github.com/chk-code"
+        email: "63784760+chk-code@users.noreply.github.com"
+      license:
+          name: "MIT License"
+          url: "https://raw.githubusercontent.com/chk-code/cdnd-04-serverless/dev/LICENSE"
   models:
     - name: CreateTodoRequest
       contentType: application/json

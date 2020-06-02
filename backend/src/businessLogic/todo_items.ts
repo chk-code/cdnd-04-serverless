@@ -52,7 +52,8 @@ export async function deleteTodo(todoId: string, userId: string): Promise<boolea
 export async function generateUploadUrl(todoId: string, userId: string, event: any): Promise<any> {
     logger.info("### Starting generateUploadUrl ###")
     const signedUrl = await todoDataAccess.getUploadUrl(todoId,event)
-    const resUpd = await todoDataAccess.updateTodoURL(todoId,userId,signedUrl)
+    logger.info("The signed URL is "+signedUrl)
+    const resUpd = await todoDataAccess.updateTodoURL(todoId,userId)
  
     logger.info("### End of generateUploadUrl ###")
     return {updTodoItem: resUpd, uploadUrl: signedUrl} 

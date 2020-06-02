@@ -137,8 +137,9 @@ export class Todos_Data_Access{
         logger.info("### End of updateTodo ###")
         return resUpd.$response.data as TodoItem  
     }
-    async updateTodoURL(todoId: string, userId: string, signedURL: string): Promise<TodoItem> {
+    async updateTodoURL(todoId: string, userId: string): Promise<TodoItem> {
         logger.info("### Starting updateTodoURL ###")
+        const imgURL = `https://${this.bucketName}.s3.amazonaws.com/${todoId}`
         const tblKey = {
           todoId: todoId,
           userId: userId
@@ -148,7 +149,7 @@ export class Todos_Data_Access{
             Key: tblKey,
             UpdateExpression: 'set attachmentUrl = :attUrl',
             ExpressionAttributeValues:{
-              ':attUrl' : signedURL,
+              ':attUrl' : imgURL,
               },
             ReturnValues: "UPDATED_NEW"
           }).promise()  
