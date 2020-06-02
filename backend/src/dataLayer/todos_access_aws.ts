@@ -27,6 +27,12 @@ export class Todos_Data_Access{
         }
     
     // GET Functions
+    /**
+     * Return a specific Todo element by asking with todoId
+     * @param todoId an specific ID of a Todo
+     *
+     * @returns the requested Todo element
+    */
     async getTodoByTodoId(todoId: string): Promise<TodoItem> {
         logger.info("### Starting getTodoByTodoId ###")
         const getRes = await this.docClient.query({
@@ -60,10 +66,7 @@ export class Todos_Data_Access{
             ExpressionAttributeNames: {'#ID' : 'userId'},
             ExpressionAttributeValues:{':uId' : userId}
         }).promise()
-        if (getRes.Count == 0){
-            logger.error("Found " + getRes.Count + " elements!")
-            throw new Error('Element not found') 
-        }  
+
         const items = getRes.Items
         logger.info("Found " + getRes.Count + " element(s)!",items) 
         
