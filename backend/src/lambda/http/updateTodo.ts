@@ -56,15 +56,16 @@ async function updateExistingTodo(todoId: string, updatedTodo: UpdateTodoRequest
         todoId: todoId,
         createdAt: currentItem.createdAt
     },
-    UpdateExpression: "set name = :n, dueDate = :d, done = :b",
+    UpdateExpression: "set #N=:tN, dueDate=:dD, done=:b",
+    ExpressionAttributeNames: { "#N": "name" },
     ExpressionAttributeValues:{
-        ":n":updatedTodo.name,
-        ":d":updatedTodo.dueDate,
-        ":b":updatedTodo.done
+      ":tN": updatedTodo.name,
+      ":dD": updatedTodo.dueDate,
+      ":b": updatedTodo.done
     },
     ReturnValues:"UPDATED_NEW"
   }
-  
+
   const updResult  = await docClient
   .update(itemUpdate, function(err, data) {
     if (err) {
