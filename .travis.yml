@@ -12,6 +12,8 @@ install:
     - cd ${SERVICE_PATH}
     - travis_retry npm install
     - cd -
+before_script:
+    - export NODE_OPTIONS=–max_old_space_size=8192
 script:
     - cd ${SERVICE_PATH}
     - serverless deploy -v --stage ${STAGE_NAME} --region ${AWS_REGION}
