@@ -28,7 +28,7 @@ custom:
   documentation:
   api:
     info:
-      version: v0.1.0
+      version: v1.0.0
       title: CDND-04-Serverless TODO App
       description: Serverless ToDo App for CDND04. (c) Christian Kulik
   models:
@@ -47,7 +47,7 @@ functions:
   # DONE: Configure this function
   GetTodos:
     handler: src/lambda/http/getTodos.handler
-    iamRoleStatementsName: Get-Todos
+    iamRoleStatementsName: Get-Todos-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -80,7 +80,7 @@ functions:
           documentation:
             summary: Create a new Todo
             description: Create a new Todo
-    iamRoleStatementsName: Create-Todo
+    iamRoleStatementsName: Create-Todo-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -103,7 +103,7 @@ functions:
           documentation:
             summary: Update a Todo
             description: Update a Todo
-    iamRoleStatementsName: Update-Todo
+    iamRoleStatementsName: Update-Todo-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -136,7 +136,7 @@ functions:
           documentation:
             summary: Delete a Todo
             description: Delete a Todo
-    iamRoleStatementsName: Delete-Todo
+    iamRoleStatementsName: Delete-Todo-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -169,7 +169,7 @@ functions:
           documentation:
             summary: Create a new image
             description: Create a new image
-    iamRoleStatementsName: Generate-UploadURL
+    iamRoleStatementsName: Generate-UploadURL-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
         Action:
