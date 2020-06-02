@@ -11,7 +11,16 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   logger.info('Processing new Todo: ', event)
   const creaTodo: CreateTodoRequest = JSON.parse(event.body)
   if(!creaTodo.name){
-    logger.info("WARNING: Todo Name is empty!")
+    logger.error("WARNING: Todo Name is empty!")
+    return {
+      statusCode: 400,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
+      },
+      // Use item: newTodo format for the frontend
+      body: "The Todo NAME can't be empty!"
+    }
   }
   const userId = getUserId(event)
   logger.info(`Request from ${userId} for new Todo: `, createTodo)
