@@ -58,7 +58,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     ReturnValues:"ALL_NEW"
   }
 
-  logger.info('Patching Todo Item: ', todoItem)
+  logger.info('Patching Todo Item: ', itemUpdate)
   // Patch
   const updResult = docClient.update(itemUpdate, function(err, data) {
     if (err) {
@@ -73,7 +73,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     headers: {
       'Access-Control-Allow-Origin': '*'
     },
-    body: "Item updated."
+    body: JSON.stringify({item: updResult})
   }
 }
 async function getTodoPerTodoId(todoId: string) {
