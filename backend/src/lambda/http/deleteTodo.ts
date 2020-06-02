@@ -31,6 +31,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       'Access-Control-Allow-Credentials': true
     },
     // Deleted item info
-    body: JSON.stringify({item: deleted})
+    body: JSON.stringify({item_deleted: deleted})
   }
 }

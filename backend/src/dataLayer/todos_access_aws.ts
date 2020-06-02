@@ -126,15 +126,11 @@ export class Todos_Data_Access{
                 '#n' : 'name',
                 '#dD' : 'dueDate',
                 '#d' : 'done',
-                '#uID' : 'userId',
-                '#tID' : 'todoId'
               },
             ExpressionAttributeValues:{
               ':n' : updateTodo.name,
               ':dD' : updateTodo.dueDate,
               ':d' : updateTodo.done,
-              ':usID' : userId,
-              ':toID' : todoId
               },
             ReturnValues: "UPDATED_NEW"
           }).promise()  
@@ -151,14 +147,8 @@ export class Todos_Data_Access{
             TableName: this.todoTable,
             KeyConditionExpression: tblKey,
             UpdateExpression: 'set attachmentUrl = :attUrl',
-            ExpressionAttributeNames: {
-                '#uID' : 'userId',
-                '#tID' : 'todoId'
-              },
             ExpressionAttributeValues:{
               ':attUrl' : signedURL,
-              ':usID' : userId,
-              ':toID' : todoId
               },
             ReturnValues: "UPDATED_NEW"
           }).promise()  
