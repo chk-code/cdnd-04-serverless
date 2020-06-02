@@ -35,7 +35,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     name: createTodo.name,
     dueDate: createTodo.dueDate,
     done: false,
-    //attachmentUrl: "https://"
   }
   // Writing newTodo to DynamoDB
   logger.info('Writing new Todo to Table: ')

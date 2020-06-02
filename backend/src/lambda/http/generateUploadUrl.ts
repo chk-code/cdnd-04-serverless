@@ -89,12 +89,12 @@ function getUploadUrl(imageId: string) {
 async function updateTodoWithURL(todoId: string, signedURL: String, event: APIGatewayProxyEvent): Promise<TodoItem> {
   const userId = getUserId(event)
   const currentItem = await getTodoItemById(todoId)
-  logger.info("Update of Todo Item - "+todoId+" - for User - "+userId+" -!")
+  logger.info("Update of Todo Item - "+todoId+" - for User - "+currentItem.userId+" -!")
   const itemUpdate = {
     TableName: todosTable,
     Key:{
         todoId: todoId,
-        createdAt: currentItem.createdAt
+        userId: userId
     },
     UpdateExpression: "set #aU=:attURL",
     ExpressionAttributeNames: {'#aU' : 'attachmentUrl'},

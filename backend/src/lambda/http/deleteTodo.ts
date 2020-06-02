@@ -73,7 +73,7 @@ async function deleteTodoItem(delTodo: TodoItem): Promise<boolean> {
     Key:
     {
       todoId: delTodo.todoId,
-      createdAt: delTodo.createdAt
+      userId: delTodo.userId
     }
   }).promise()
   logger.info("Completed deleteTodoItem");
