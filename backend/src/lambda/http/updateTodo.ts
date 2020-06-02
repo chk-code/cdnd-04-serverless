@@ -4,7 +4,6 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { createLogger } from '../../utils/logger'
 import { getUserId } from '../utils'
-import * as AWSXray from 'aws-xray-sdk'
 import { updateTodo } from '../../businessLogic/todo_items'
 
 const logger = createLogger('update-todo')
