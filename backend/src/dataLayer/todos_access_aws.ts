@@ -10,7 +10,6 @@ const s3 = new XAWS.S3({
 })
 
 import { TodoItem } from '../models/TodoItem'
-import { puts } from 'util'
 
 export class Todos_Data_Access{
     /**
@@ -21,7 +20,7 @@ export class Todos_Data_Access{
         private readonly todoTable = process.env.TODOS_TABLE,
         private readonly attImgsTable = process.env.IMAGES_TABLE,
         private readonly todoIndex = process.env.TODOS_ID_INDEX,
-        private readonly nameIndex = process.env.TODOS_IDX_NAME,
+        //private readonly nameIndex = process.env.TODOS_IDX_NAME,
         private readonly userIdIdx = process.env.USERID_IDX,
         private readonly bucketName = process.env.IMAGES_S3_BUCKET,
         private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION){

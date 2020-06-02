@@ -3,7 +3,6 @@ import { TodoItem } from '../models/TodoItem'
 import { Todos_Data_Access } from '../dataLayer/todos_access_aws'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
-import { parseUserId } from '../auth/utils'
 import * as uuid from 'uuid'
 
 const todoDataAccess = new Todos_Data_Access()
