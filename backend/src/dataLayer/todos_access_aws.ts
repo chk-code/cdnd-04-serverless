@@ -132,7 +132,7 @@ export class Todos_Data_Access{
               ':dD' : updateTodo.dueDate,
               ':d' : updateTodo.done,
               },
-            ReturnValues: "ALL_NEW"
+            ReturnValues: "UPDATED_NEW"
           }).promise()  
         logger.info("### End of updateTodo ###")
         return resUpd.$response.data as TodoItem  
@@ -145,7 +145,7 @@ export class Todos_Data_Access{
         }
         const resUpd = await this.docClient.update({
             TableName: this.todoTable,
-            KeyConditionExpression: tblKey,
+            Key: tblKey,
             UpdateExpression: 'set attachmentUrl = :attUrl',
             ExpressionAttributeValues:{
               ':attUrl' : signedURL,
